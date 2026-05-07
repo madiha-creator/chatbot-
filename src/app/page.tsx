@@ -4,7 +4,6 @@ import { useState } from 'react'
 import { TooltipProvider } from '@/components/ui/Tooltip'
 import { Sidebar, ActiveView } from '@/components/Sidebar'
 import { ChatArea } from '@/components/ChatArea'
-import { ImageGen } from '@/components/ImageGen'
 import { Explore } from '@/components/Explore'
 import { AnalyticsPanel } from '@/components/AnalyticsPanel'
 import { useChatStore } from '@/store/chatStore'
@@ -49,7 +48,6 @@ export default function Home() {
               onInitialPromptUsed={() => setExplorePrompt(undefined)}
             />
           )}
-          {activeView === 'image' && <ImageGen />}
           {activeView === 'explore' && <Explore onPromptSelect={handleExplorePrompt} />}
         </div>
 

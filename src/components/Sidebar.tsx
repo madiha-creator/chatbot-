@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import {
   Plus, MessageSquare, Pin, Trash2, BarChart2,
   ChevronLeft, Search, MoreHorizontal, Edit2,
-  ImageIcon, Compass, Mail, Sun, Moon,
+  Compass, Mail, Sun, Moon,
 } from 'lucide-react'
 import { useChatStore } from '@/store/chatStore'
 import { useTheme } from '@/context/ThemeContext'
@@ -17,7 +17,7 @@ import {
 import { cn, formatDate } from '@/lib/utils'
 import { Conversation } from '@/types'
 
-export type ActiveView = 'chat' | 'image' | 'explore'
+export type ActiveView = 'chat' | 'explore'
 
 interface SidebarProps {
   activeView: ActiveView
@@ -52,7 +52,6 @@ export function Sidebar({ activeView, onViewChange }: SidebarProps) {
 
   const NAV_ITEMS = [
     { id: 'chat' as ActiveView, icon: MessageSquare, label: 'Chat' },
-    { id: 'image' as ActiveView, icon: ImageIcon, label: 'Image' },
     { id: 'explore' as ActiveView, icon: Compass, label: 'Explore' },
   ]
 
