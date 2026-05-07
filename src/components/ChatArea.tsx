@@ -8,27 +8,34 @@ import { useChatStore } from '@/store/chatStore'
 import { MessageBubble } from '@/components/MessageBubble'
 import { ChatInput } from '@/components/ChatInput'
 import { ModelSelector } from '@/components/ModelSelector'
-import { Button } from '@/components/ui/Button'
 
 const SUGGESTIONS = [
-  'Explain quantum computing in simple terms',
-  'Write a Python function to sort a list',
-  'What are the best practices for REST APIs?',
-  'Help me debug this JavaScript error',
+  { emoji: '🔭', text: 'Explain quantum computing in simple terms' },
+  { emoji: '🐍', text: 'Write a Python function to sort a list' },
+  { emoji: '🌐', text: 'What are the best practices for REST APIs?' },
+  { emoji: '🐛', text: 'Help me debug this JavaScript error' },
 ]
 
-export function ChatArea() {
-  const {
-    currentConversation,
-    isLoading,
-    sendMessage,
-    regenerateLastResponse,
-  } = useChat()
+interface ChatAreaProps {
+  initialPrompt?: string
+  onInitialPromptUsed?: () => void
+}
 
+export function ChatArea({ initialPrompt, onInitialPromptUsed }: ChatAreaProps) {
+  const { currentConversation, isLoading, sendMessage, regenerateLastResponse } = useChat()
   const { sidebarOpen, toggleSidebar } = useChatStore()
   const bottomRef = useRef<HTMLDivElement>(null)
+  const sentRef = useRef(false)
 
-  // Scroll to bottom on new messages
+  // Auto-send prompt coming from Explore
+  useEffect(() => {
+    if (initialPrompt && !sentRef.current) {
+      sentRef.current = true
+      sendMessage(initialPrompt)
+      onInitialPromptUsed?.()
+    }
+  }, [initialPrompt])
+
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [currentConversation?.messages])
@@ -37,20 +44,20 @@ export function ChatArea() {
   const isEmpty = messages.length === 0
 
   return (
-    <div className="flex flex-col flex-1 min-w-0 h-full">
+    <div className="flex flex-col flex-1 min-w-0 h-full comic-bg">
       {/* Top bar */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-white/80 backdrop-blur-md shrink-0">
+      <div className="flex items-center justify-between px-4 py-3 border-b-[2.5px] border-gray-900 bg-white shrink-0" style={{ boxShadow: '0 3px 0 #1a1a2e' }}>
         <div className="flex items-center gap-3">
           {!sidebarOpen && (
             <button
               onClick={toggleSidebar}
-              className="rounded-lg p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+              className="rounded-lg p-1.5 text-gray-500 hover:bg-gray-100 transition-colors border border-gray-200"
               title="Open sidebar"
             >
               <PanelLeft className="h-4 w-4" />
             </button>
           )}
-          <h1 className="text-sm font-semibold text-gray-800 truncate">
+          <h1 className="font-bangers text-lg text-gray-900 tracking-wide truncate">
             {currentConversation?.title ?? 'New Chat'}
           </h1>
         </div>
@@ -67,26 +74,30 @@ export function ChatArea() {
               transition={{ duration: 0.3 }}
               className="flex flex-col items-center gap-3 text-center"
             >
-              <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-purple-600 to-purple-400 flex items-center justify-center shadow-lg shadow-purple-500/30">
-                <Sparkles className="h-7 w-7 text-white" />
+              <div
+                className="h-16 w-16 rounded-2xl bg-gradient-to-br from-purple-600 to-pink-500 flex items-center justify-center border-[2.5px] border-gray-900"
+                style={{ boxShadow: '4px 4px 0 #1a1a2e' }}
+              >
+                <Sparkles className="h-8 w-8 text-white" />
               </div>
               <div>
-                <h2 className="text-xl font-semibold text-gray-900">How can I help you?</h2>
+                <h2 className="font-bangers text-3xl text-gray-900 tracking-wide">How can I help you?</h2>
                 <p className="text-sm text-gray-500 mt-1">Start a conversation or pick a suggestion below</p>
               </div>
             </motion.div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full max-w-xl">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-xl">
               {SUGGESTIONS.map((s, i) => (
                 <motion.button
-                  key={s}
+                  key={s.text}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.1 + i * 0.05 }}
-                  onClick={() => sendMessage(s)}
-                  className="text-left rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-700 hover:border-purple-300 hover:bg-purple-50 hover:text-purple-800 transition-all duration-150 shadow-sm"
+                  onClick={() => sendMessage(s.text)}
+                  className="comic-card text-left px-4 py-3 text-sm text-gray-700 hover:bg-purple-50 flex items-start gap-2"
                 >
-                  {s}
+                  <span className="text-lg leading-none">{s.emoji}</span>
+                  <span>{s.text}</span>
                 </motion.button>
               ))}
             </div>
@@ -111,7 +122,7 @@ export function ChatArea() {
       </div>
 
       {/* Input */}
-      <div className="shrink-0 border-t border-gray-100 bg-white/80 backdrop-blur-md">
+      <div className="shrink-0 border-t-[2.5px] border-gray-900 bg-white">
         <ChatInput onSend={sendMessage} isLoading={isLoading} />
       </div>
     </div>

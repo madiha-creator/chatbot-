@@ -1,26 +1,102 @@
+@import url('https://fonts.googleapis.com/css2?family=Bangers&family=Comic+Neue:wght@400;700&family=Inter:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
+  --background: #fafafa;
   --foreground: #171717;
+  --comic-border: 2.5px solid #1a1a2e;
+  --comic-shadow: 3px 3px 0px #1a1a2e;
+  --comic-shadow-purple: 3px 3px 0px #7c3aed;
+  --purple-main: #7c3aed;
+  --purple-light: #ede9fe;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: 'Inter', sans-serif;
   --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Inter', sans-serif;
 }
+
+/* Comic book dot pattern background */
+.comic-bg {
+  background-color: #faf8ff;
+  background-image: radial-gradient(circle, #c4b5fd 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* Comic card style */
+.comic-card {
+  border: 2.5px solid #1a1a2e;
+  box-shadow: 4px 4px 0px #1a1a2e;
+  border-radius: 16px;
+  background: white;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.comic-card:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px #1a1a2e;
+}
+
+.comic-card-purple {
+  border: 2.5px solid #7c3aed;
+  box-shadow: 4px 4px 0px #7c3aed;
+  border-radius: 16px;
+  background: white;
+}
+
+/* Comic button */
+.comic-btn {
+  border: 2.5px solid #1a1a2e;
+  box-shadow: 3px 3px 0px #1a1a2e;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.comic-btn:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0px #1a1a2e;
+}
+
+.comic-btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0px #1a1a2e;
+}
+
+/* Bangers font for headings */
+.font-bangers {
+  font-family: 'Bangers', cursive;
+  letter-spacing: 0.05em;
+}
+
+/* Speech bubble */
+.speech-bubble {
+  position: relative;
+  border: 2.5px solid #1a1a2e;
+  box-shadow: 3px 3px 0px #1a1a2e;
+  border-radius: 16px;
+}
+
+/* Halftone shimmer for loading */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.shimmer {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0d4ff 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #c4b5fd; border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: #7c3aed; }
