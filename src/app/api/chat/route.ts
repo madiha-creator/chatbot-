@@ -2,6 +2,10 @@ import { NextRequest } from 'next/server'
 
 const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions'
 
+// Edge runtime: no cold starts, no timeout limits, native streaming on Vercel
+export const runtime = 'edge'
+export const dynamic = 'force-dynamic'
+
 export async function POST(request: NextRequest) {
   try {
     const { messages, model } = await request.json()
@@ -20,7 +24,7 @@ export async function POST(request: NextRequest) {
       headers: {
         'Authorization': `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
-        'HTTP-Referer': process.env.NEXT_PUBLIC_APP_URL || 'https://localhost:3000',
+        'HTTP-Referer': process.env.NEXT_PUBLIC_APP_URL || 'https://made-chatbot.vercel.app',
         'X-Title': 'Made ChatBot',
       },
       body: JSON.stringify({
@@ -33,7 +37,7 @@ export async function POST(request: NextRequest) {
 
     if (!response.ok) {
       const error = await response.text()
-      console.error('OpenRouter error response:', response.status, error)
+      console.error('OpenRouter error:', response.status, error)
       return new Response(
         JSON.stringify({ error: `OpenRouter API error: ${error}` }),
         { status: response.status, headers: { 'Content-Type': 'application/json' } }
@@ -46,10 +50,7 @@ export async function POST(request: NextRequest) {
     const stream = new ReadableStream({
       async start(controller) {
         const reader = response.body?.getReader()
-        if (!reader) {
-          controller.close()
-          return
-        }
+        if (!reader) { controller.close(); return }
 
         try {
           while (true) {
@@ -66,18 +67,13 @@ export async function POST(request: NextRequest) {
                   controller.enqueue(encoder.encode('data: [DONE]\n\n'))
                   continue
                 }
-
                 try {
                   const parsed = JSON.parse(data)
                   const content = parsed.choices?.[0]?.delta?.content
                   if (content) {
-                    controller.enqueue(
-                      encoder.encode(`data: ${JSON.stringify({ content })}\n\n`)
-                    )
+                    controller.enqueue(encoder.encode(`data: ${JSON.stringify({ content })}\n\n`))
                   }
-                } catch {
-                  // Skip invalid JSON
-                }
+                } catch { /* skip invalid JSON */ }
               }
             }
           }
