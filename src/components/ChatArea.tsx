@@ -5,9 +5,11 @@ import { motion } from 'framer-motion'
 import { PanelLeft, Sparkles } from 'lucide-react'
 import { useChat } from '@/hooks/useChat'
 import { useChatStore } from '@/store/chatStore'
+import { useTheme } from '@/context/ThemeContext'
 import { MessageBubble } from '@/components/MessageBubble'
 import { ChatInput } from '@/components/ChatInput'
 import { ModelSelector } from '@/components/ModelSelector'
+import { cn } from '@/lib/utils'
 
 const SUGGESTIONS = [
   { emoji: '🔭', text: 'Explain quantum computing in simple terms' },
@@ -24,10 +26,11 @@ interface ChatAreaProps {
 export function ChatArea({ initialPrompt, onInitialPromptUsed }: ChatAreaProps) {
   const { currentConversation, isLoading, sendMessage, regenerateLastResponse } = useChat()
   const { sidebarOpen, toggleSidebar } = useChatStore()
+  const { theme } = useTheme()
+  const isDark = theme === 'dark'
   const bottomRef = useRef<HTMLDivElement>(null)
   const sentRef = useRef(false)
 
-  // Auto-send prompt coming from Explore
   useEffect(() => {
     if (initialPrompt && !sentRef.current) {
       sentRef.current = true
@@ -44,20 +47,22 @@ export function ChatArea({ initialPrompt, onInitialPromptUsed }: ChatAreaProps) 
   const isEmpty = messages.length === 0
 
   return (
-    <div className="flex flex-col flex-1 min-w-0 h-full comic-bg">
+    <div className={cn('flex flex-col flex-1 min-w-0 h-full transition-colors duration-200', isDark ? 'bg-[#0f0f1a]' : 'comic-bg')}>
       {/* Top bar */}
-      <div className="flex items-center justify-between px-4 py-3 border-b-[2.5px] border-gray-900 bg-white shrink-0" style={{ boxShadow: '0 3px 0 #1a1a2e' }}>
+      <div
+        className={cn('flex items-center justify-between px-4 py-3 border-b-[2.5px] shrink-0 transition-colors duration-200', isDark ? 'bg-[#13132a] border-purple-700' : 'bg-white border-gray-900')}
+        style={{ boxShadow: isDark ? '0 3px 0 #7c3aed' : '0 3px 0 #1a1a2e' }}
+      >
         <div className="flex items-center gap-3">
           {!sidebarOpen && (
             <button
               onClick={toggleSidebar}
-              className="rounded-lg p-1.5 text-gray-500 hover:bg-gray-100 transition-colors border border-gray-200"
-              title="Open sidebar"
+              className={cn('rounded-lg p-1.5 transition-colors border', isDark ? 'text-gray-400 hover:bg-white/5 border-purple-700' : 'text-gray-500 hover:bg-gray-100 border-gray-200')}
             >
               <PanelLeft className="h-4 w-4" />
             </button>
           )}
-          <h1 className="font-bangers text-lg text-gray-900 tracking-wide truncate">
+          <h1 className={cn('font-bangers text-lg tracking-wide truncate', isDark ? 'text-purple-300' : 'text-gray-900')}>
             {currentConversation?.title ?? 'New Chat'}
           </h1>
         </div>
@@ -75,14 +80,18 @@ export function ChatArea({ initialPrompt, onInitialPromptUsed }: ChatAreaProps) 
               className="flex flex-col items-center gap-3 text-center"
             >
               <div
-                className="h-16 w-16 rounded-2xl bg-gradient-to-br from-purple-600 to-pink-500 flex items-center justify-center border-[2.5px] border-gray-900"
-                style={{ boxShadow: '4px 4px 0 #1a1a2e' }}
+                className="h-16 w-16 rounded-2xl bg-gradient-to-br from-purple-600 to-pink-500 flex items-center justify-center border-[2.5px]"
+                style={{ borderColor: isDark ? '#7c3aed' : '#1a1a2e', boxShadow: `4px 4px 0 ${isDark ? '#7c3aed' : '#1a1a2e'}` }}
               >
                 <Sparkles className="h-8 w-8 text-white" />
               </div>
               <div>
-                <h2 className="font-bangers text-3xl text-gray-900 tracking-wide">How can I help you?</h2>
-                <p className="text-sm text-gray-500 mt-1">Start a conversation or pick a suggestion below</p>
+                <h2 className={cn('font-bangers text-3xl tracking-wide', isDark ? 'text-purple-300' : 'text-gray-900')}>
+                  How can I help you?
+                </h2>
+                <p className={cn('text-sm mt-1', isDark ? 'text-gray-500' : 'text-gray-500')}>
+                  Start a conversation or pick a suggestion below
+                </p>
               </div>
             </motion.div>
 
@@ -94,7 +103,14 @@ export function ChatArea({ initialPrompt, onInitialPromptUsed }: ChatAreaProps) 
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.1 + i * 0.05 }}
                   onClick={() => sendMessage(s.text)}
-                  className="comic-card text-left px-4 py-3 text-sm text-gray-700 hover:bg-purple-50 flex items-start gap-2"
+                  className={cn(
+                    'text-left rounded-xl border-[2.5px] px-4 py-3 text-sm flex items-start gap-2 transition-all duration-150',
+                    isDark
+                      ? 'bg-[#1a1a2e] border-purple-700 text-gray-300 hover:border-purple-500 hover:bg-purple-900/20'
+                      : 'bg-white border-gray-900 text-gray-700 hover:bg-purple-50',
+                    'shadow-[3px_3px_0_var(--border)]'
+                  )}
+                  style={{ boxShadow: `3px 3px 0 ${isDark ? '#7c3aed' : '#1a1a2e'}` }}
                 >
                   <span className="text-lg leading-none">{s.emoji}</span>
                   <span>{s.text}</span>
@@ -122,7 +138,7 @@ export function ChatArea({ initialPrompt, onInitialPromptUsed }: ChatAreaProps) 
       </div>
 
       {/* Input */}
-      <div className="shrink-0 border-t-[2.5px] border-gray-900 bg-white">
+      <div className={cn('shrink-0 border-t-[2.5px] transition-colors duration-200', isDark ? 'bg-[#13132a] border-purple-700' : 'bg-white border-gray-900')}>
         <ChatInput onSend={sendMessage} isLoading={isLoading} />
       </div>
     </div>
