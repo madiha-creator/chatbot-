@@ -28,6 +28,24 @@ interface GeneratedImage {
   style: string
 }
 
+async function downloadImage(url: string, filename: string) {
+  try {
+    const res = await fetch(url)
+    const blob = await res.blob()
+    const blobUrl = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = blobUrl
+    a.download = filename
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(blobUrl)
+  } catch {
+    // Fallback: open in new tab
+    window.open(url, '_blank')
+  }
+}
+
 export function ImageGen() {
   const [prompt, setPrompt] = useState('')
   const [selectedStyle, setSelectedStyle] = useState(STYLE_PRESETS[0])
@@ -210,16 +228,13 @@ export function ImageGen() {
                   <p className="text-xs text-purple-500 mt-0.5">{img.style}</p>
                 </div>
                 <div className="flex gap-2 shrink-0">
-                  <a
-                    href={img.url}
-                    download="generated-image.png"
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <button
+                    onClick={() => downloadImage(img.url, `${img.prompt.slice(0, 30).replace(/\s+/g, '-')}.jpg`)}
                     className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-purple-600 text-white border-2 border-gray-900 shadow-[2px_2px_0_#1a1a2e] hover:-translate-x-0.5 hover:-translate-y-0.5 transition-transform"
                   >
                     <Download className="h-3.5 w-3.5" />
                     Save
-                  </a>
+                  </button>
                   <button
                     onClick={() => generate(img.prompt)}
                     className={cn('flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border-2 transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5', isDark ? 'bg-white/5 text-gray-300 border-purple-700 shadow-[2px_2px_0_#7c3aed]' : 'bg-white text-gray-700 border-gray-300 shadow-[2px_2px_0_#1a1a2e]')}
