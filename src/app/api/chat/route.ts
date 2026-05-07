@@ -2,12 +2,15 @@ import { NextRequest } from 'next/server'
 
 const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions'
 
+// Edge runtime: no timeout limits, streaming works natively on Vercel
+export const runtime = 'edge'
+
 export async function POST(request: NextRequest) {
   try {
     const { messages, model } = await request.json()
-    
+
     const apiKey = process.env.OPENROUTER_API_KEY
-    
+
     if (!apiKey) {
       return new Response(
         JSON.stringify({ error: 'OpenRouter API key not configured' }),
@@ -20,7 +23,7 @@ export async function POST(request: NextRequest) {
       headers: {
         'Authorization': `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
-        'HTTP-Referer': process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
+        'HTTP-Referer': process.env.NEXT_PUBLIC_APP_URL || 'https://localhost:3000',
         'X-Title': 'Made ChatBot',
       },
       body: JSON.stringify({
@@ -70,7 +73,6 @@ export async function POST(request: NextRequest) {
                 try {
                   const parsed = JSON.parse(data)
                   const content = parsed.choices?.[0]?.delta?.content
-                  
                   if (content) {
                     controller.enqueue(
                       encoder.encode(`data: ${JSON.stringify({ content })}\n\n`)
