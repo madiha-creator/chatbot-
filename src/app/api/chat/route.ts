@@ -2,9 +2,8 @@ import { NextRequest } from 'next/server'
 
 const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions'
 
-// Edge runtime: no cold starts, no timeout limits, native streaming on Vercel
-export const runtime = 'edge'
 export const dynamic = 'force-dynamic'
+export const maxDuration = 60
 
 export async function POST(request: NextRequest) {
   try {
@@ -19,12 +18,18 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Disable SSL verification locally (corporate proxy / cert issues)
+    // On Vercel this env var is not set so it has no effect
+    if (process.env.NODE_ENV === 'development') {
+      process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
+    }
+
     const response = await fetch(OPENROUTER_API_URL, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
-        'HTTP-Referer': process.env.NEXT_PUBLIC_APP_URL || 'https://made-chatbot.vercel.app',
+        'HTTP-Referer': process.env.NEXT_PUBLIC_APP_URL || 'https://chatbot-git-main-madiha-creators-projects.vercel.app',
         'X-Title': 'Made ChatBot',
       },
       body: JSON.stringify({
