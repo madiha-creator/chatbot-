@@ -2,9 +2,6 @@ import { NextRequest } from 'next/server'
 
 const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions'
 
-// Edge runtime: no timeout limits, streaming works natively on Vercel
-export const runtime = 'edge'
-
 export async function POST(request: NextRequest) {
   try {
     const { messages, model } = await request.json()
